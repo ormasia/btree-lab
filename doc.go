@@ -12,3 +12,18 @@
 // - Memory-efficient node structure
 // - Support for range queries and iteration
 package btree
+
+// B-Tree 不变式：
+// 每个非根节点的 key 数量在 [degree-1, 2*degree-1] 之间；
+//
+// 根节点的 key 数量不超过 2*degree-1（可以为 0 或 >=1）；
+//
+// 对于内部节点：len(children) == len(items)+1；
+//
+// 对于叶子：len(children) == 0；
+//
+// 每个节点内的 key 严格升序；
+//
+// 每个子树的 key 都落在由父节点 key 决定的 (min, max) 区间内；
+//
+// 所有叶子深度相同（B-Tree 的高度一致性）。
