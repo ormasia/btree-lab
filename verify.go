@@ -39,11 +39,11 @@ func (t *BTree[K, V]) verifyNode(n *node[K, V], isRoot bool, minKey *K, maxKey *
 	// 2. 检查 keys 有序 且在 (minKey, maxKey) 范围内
 	for i := range itemCount {
 		key := n.items[i].key
-		if minKey != nil && !t.greaterThan(key, *minKey) {
-			return fmt.Errorf("btree: node at depth %d has key %v < minKey %v", depth, key, *minKey)
+		if minKey != nil && t.lessThan(key, *minKey) {
+			return fmt.Errorf("btree: node at depth %d has key %v <= minKey %v", depth, key, *minKey)
 		}
-		if maxKey != nil && !t.lessThan(key, *maxKey) {
-			return fmt.Errorf("btree: node at depth %d has key %v > maxKey %v", depth, key, *maxKey)
+		if maxKey != nil && t.greaterThan(key, *maxKey) {
+			return fmt.Errorf("btree: node at depth %d has key %v >= maxKey %v", depth, key, *maxKey)
 		}
 		// 检查有序性 从第二个 key 开始检查
 		if i > 0 && t.greaterThan(n.items[i-1].key, key) {
@@ -73,7 +73,7 @@ func (t *BTree[K, V]) verifyNode(n *node[K, V], isRoot bool, minKey *K, maxKey *
 	}
 
 	// 5. 内部节点--递归检查子节点
-	for i := 0; i < childCount; i++ { // 注意：i < childCount，因为有 childCount(items + 1) 个孩子节点
+	for i := range childCount { // 注意：i < childCount，因为有 childCount(items + 1) 个孩子节点
 		var childMinKey, childMaxKey *K
 		switch i {
 		case 0: // 第一个孩子节点
