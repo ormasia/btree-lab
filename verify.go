@@ -18,7 +18,7 @@ func (t *BTree[K, V]) Verify() error {
 // depth: 当前节点深度（根为 0）
 // leafDepth: 首次遇到叶子的深度，之后所有叶子都必须与之相同
 func (t *BTree[K, V]) verifyNode(n *node[K, V], isRoot bool, minKey *K, maxKey *K, depth int, leafDepth *int) error {
-	// 检查节点的深度
+	// 检查节点是否为 nil
 	if n == nil {
 		return fmt.Errorf("btree: encountered nil node at depth %d", depth)
 	}
@@ -37,12 +37,12 @@ func (t *BTree[K, V]) verifyNode(n *node[K, V], isRoot bool, minKey *K, maxKey *
 	}
 
 	// 2. 检查 keys 有序 且在 (minKey, maxKey) 范围内
-	for i := 0; i < itemCount; i++ {
+	for i := range itemCount {
 		key := n.items[i].key
-		if minKey != nil && t.lessThan(key, *minKey) {
+		if minKey != nil && !t.greaterThan(key, *minKey) {
 			return fmt.Errorf("btree: node at depth %d has key %v < minKey %v", depth, key, *minKey)
 		}
-		if maxKey != nil && t.greaterThan(key, *maxKey) {
+		if maxKey != nil && !t.lessThan(key, *maxKey) {
 			return fmt.Errorf("btree: node at depth %d has key %v > maxKey %v", depth, key, *maxKey)
 		}
 		// 检查有序性 从第二个 key 开始检查
@@ -51,7 +51,7 @@ func (t *BTree[K, V]) verifyNode(n *node[K, V], isRoot bool, minKey *K, maxKey *
 		}
 	}
 
-	// 3. 叶子结点检查
+	// 3. 叶子节点检查
 	if n.isLeaf {
 		// 没有孩子节点
 		if len(n.children) != 0 {
@@ -66,14 +66,14 @@ func (t *BTree[K, V]) verifyNode(n *node[K, V], isRoot bool, minKey *K, maxKey *
 		return nil
 	}
 
-	// 4. 内部节点检查 孩子结点 = key 数量 + 1
+	// 4. 内部节点检查 孩子节点 = key 数量 + 1
 	childCount := len(n.children)
 	if childCount != itemCount+1 {
 		return fmt.Errorf("btree: internal node at depth %d has %d keys but %d children", depth, itemCount, childCount)
 	}
 
 	// 5. 内部节点--递归检查子节点
-	for i := 0; i < childCount; i++ { // 注意：i <= childCount，因为有 childCount(items + 1) 个孩子节点
+	for i := 0; i < childCount; i++ { // 注意：i < childCount，因为有 childCount(items + 1) 个孩子节点
 		var childMinKey, childMaxKey *K
 		switch i {
 		case 0: // 第一个孩子节点
