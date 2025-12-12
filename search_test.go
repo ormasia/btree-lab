@@ -57,7 +57,7 @@ func TestGetManualTree(t *testing.T) {
 }
 
 func TestFindIndex(t *testing.T) {
-	tree := NewWithOptions[int, string](DefaultOptions[int](intLess))
+	tree := NewWithOptions[int, string](DefaultOptions(intLess))
 
 	n := &node[int, string]{
 		isLeaf: true,
@@ -196,7 +196,7 @@ func TestSetOverwrite(t *testing.T) {
 // TestSetManyWithSplit 用小 degree 触发多次分裂，验证结构没乱
 func TestSetManyWithSplit(t *testing.T) {
 	// 用一个小一点的 Degree（比如 3），更容易触发 split
-	opts := OptionsWithDegree[int](3, intLess)
+	opts := OptionsWithDegree(3, intLess)
 	tree := NewWithOptions[int, int](opts)
 
 	const N = 200
