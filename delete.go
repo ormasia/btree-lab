@@ -142,7 +142,7 @@ func (t *BTree[K, V]) deleteFromChild(parent *node[K, V], childIndex int, key K)
 			if len(leftSibling.items) >= degree {
 				t.borrowFromLeft(parent, childIndex)
 				child = parent.children[childIndex] // 重新取 child 引用
-			} else if childIndex+1 < len(parent.children) {
+			} else if childIndex+1 < len(parent.children) { // 防止越界
 				// 左兄弟也不够，从右兄弟借或合并
 				rightSibling := parent.children[childIndex+1]
 				if len(rightSibling.items) >= degree {
@@ -221,9 +221,11 @@ func (t *BTree[K, V]) borrowFromLeft(parent *node[K, V], idx int) {
 
 	// 3）如果有 children，同样移动一个 child 指针
 	if !child.isLeaf {
-		child.children = append(child.children, (*node[K, V])(nil))
-		copy(child.children[1:], child.children[:len(child.children)-1])
+		// child.children = append(child.children, (*node[K, V])(nil))
+		// copy(child.children[1:], child.children[:len(child.children)-1])
+		child.children = append([]*node[K, V]{nil}, child.children...) // prepend nil
 		child.children[0] = leftSibling.children[len(leftSibling.children)-1]
+		leftSibling.children[len(leftSibling.children)-1] = nil // clear element to let GC do its job
 		leftSibling.children = leftSibling.children[:len(leftSibling.children)-1]
 	}
 }

@@ -39,7 +39,7 @@ func TestVerify_DetectUnorderedKeys(t *testing.T) {
 func TestVerify_DetectBadChildrenCount(t *testing.T) {
 	tree := NewWithOptions[int, int](DefaultOptions(intLess))
 
-	for i := 0; i < 50; i++ {
+	for i := 0; i < 100; i++ {
 		tree.Set(i, i)
 	}
 
